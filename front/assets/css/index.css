@@ -1,0 +1,116 @@
+* {
+    margin: 0;
+}
+
+body {
+    background-color: rgb(32, 32, 32);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    /* Permet de forcer la hauteur du conteneur body à 100% de la hauteur de la fenêtre */
+}
+
+a {
+    text-decoration: none;
+    color: beige;
+}
+
+a:hover {
+    color: #000000;
+}
+
+.header {
+    background-color: rgb(46, 46, 46);
+    box-sizing: border-box;
+    padding: 10px;
+    height: 75px;
+    width: 100vw;
+    justify-content: space-between;
+    display: flex;
+    align-items: center;
+    position: fixed;
+    top: 0;
+}
+
+.logo img {
+    width: 500px;
+    height: 500px;
+}
+
+.menu {
+    font-size: 45px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.menu li {
+    list-style-type: none;
+    margin: 0.7rem;
+    padding: 0.4rem;
+}
+
+.content {
+    color: beige;
+    font-size: 40px;
+    margin-top: 80px;
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+footer {
+    flex-shrink: 0;
+    width: 100%;
+    background-color: rgb(46, 46, 46);
+    color: beige;
+    margin-top: auto;
+    /* Pour forcer le footer à rester en bas de la page */
+}
+
+.bloc {
+    width: 25%;
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 30px;
+    margin-right: 50px;
+}
+
+.services h3,
+.contact h3,
+.media h3 {
+    font-size: 25px;
+    padding-bottom: 25px;
+}
+
+.contact p {
+    padding-bottom: 20px;
+}
+
+.services-list,
+.media-list {
+    list-style-type: none;
+    margin: 0;
+}
+
+.media-list li {
+    padding: 5px 0px;
+}
+
+.services-list li {
+    padding: 10px 0px;
+}
+
+.media-list img {
+    width: 50px;
+}
+
+.footer-content {
+    width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    font-size: 20px;
+    padding: 50px 0px 100px;
+}
