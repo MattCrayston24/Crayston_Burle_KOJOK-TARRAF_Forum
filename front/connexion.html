@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Inscription / Connexion</title>
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="signup-form" class="hidden">
+        <h1>Inscription</h1>
+        <form method="post">
+            <label for="pseudo">Pseudo :</label><br>
+            <input type="text" id="pseudo" name="pseudo"><br>
+            <label for="email">Email :</label><br>
+            <input type="email" id="email" name="email"><br>
+            <label for="mot_de_passe">Mot de passe :</label><br>
+            <input type="password" id="mot_de_passe" name="mot_de_passe"><br>
+            <input type="submit" value="S'inscrire">
+        </form>
+        <button onclick="switchForms()">Se connecter</button>
+    </div>
+    <div id="login-form" class="hidden">
+        <h1>Connexion</h1>
+        <form method="post">
+            <label for="email">Email :</label><br>
+            <input type="email" id="email" name="email"><br>
+            <label for="mot_de_passe">Mot de passe :</label><br>
+            <input type="password" id="mot_de_passe" name="mot_de_passe"><br>
+            <input type="submit" value="Se connecter">
+        </form>
+        <button onclick="switchForms()">S'inscrire</button>
+    </div>
+    <script>
+        var signupForm = document.getElementById('signup-form');
+        var loginForm = document.getElementById('login-form');
+
+        function switchForms() {
+            if (signupForm.classList.contains('hidden')) {
+                signupForm.classList.remove('hidden');
+                loginForm.classList.add('hidden');
+            } else {
+                signupForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+            }
+        }
+
+        switchForms(); 
+    </script>
+</body>
+</html>
