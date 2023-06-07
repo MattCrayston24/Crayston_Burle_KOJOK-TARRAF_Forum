@@ -59,7 +59,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if utilisateur.AdresseMail != "" {
-			fmt.Fprintln(w, "Connexion réussie")
+			http.Redirect(w, r, "/", http.StatusSeeOther)
 		} else {
 			fmt.Fprintln(w, "Connexion échouée")
 		}
@@ -74,7 +74,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				fmt.Fprintln(w, "Inscription échouée")
 			} else {
-				fmt.Fprintln(w, "Inscription réussie")
+				http.Redirect(w, r, "/", http.StatusSeeOther)
 			}
 		}
 	}
