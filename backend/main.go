@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"html/template"
 	"net/http"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -49,6 +50,8 @@ type Definir struct {
 	ID_CATEGORIE int
 }
 
+//fonction pour toutes les pages
+
 func main() {
 	var err error
 	db, err = sql.Open("mysql", "root@tcp(127.0.0.1:3306)/newforum")
@@ -76,23 +79,63 @@ func main() {
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "../front/index.html")
+	tmpl, err := template.ParseFiles("../front/index.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func alimentationHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "../front/alimentation.html")
+	tmpl, err := template.ParseFiles("../front/alimentation.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func contactHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "../front/contact.html")
+	tmpl, err := template.ParseFiles("../front/contact.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func produitsHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "../front/produits.html")
+	tmpl, err := template.ParseFiles("../front/produits.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func programHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "../front/programme.html")
+	tmpl, err := template.ParseFiles("../front/programme.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
