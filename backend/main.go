@@ -40,6 +40,9 @@ func main() {
 	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/connexion", loginHandler)
 	http.HandleFunc("/programme", programHandler)
+	http.HandleFunc("/alimentation", alimentationHandler)
+	http.HandleFunc("/contact", contactHandler)
+	http.HandleFunc("/produits", produitsHandler)
 
 	fmt.Println("(http://localhost:8080/) - Server is running on port 8080")
 
@@ -51,6 +54,18 @@ func main() {
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "../front/index.html")
+}
+
+func alimentationHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "../front/alimentation.html")
+}
+
+func contactHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "../front/contact.html")
+}
+
+func produitsHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "../front/produits.html")
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
