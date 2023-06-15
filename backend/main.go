@@ -90,18 +90,6 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func alimentationHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("../front/alimentation.html")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	err = tmpl.Execute(w, nil)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
-
 func contactHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("../front/contact.html")
 	if err != nil {
@@ -114,29 +102,65 @@ func contactHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func alimentationHandler(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFiles("../front/alimentation.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	rows, err := db.Query("SELECT topic.ID_TOPIC, topic.TITRE FROM topic JOIN definir ON topic.ID_TOPIC = definir.ID_TOPIC WHERE definir.ID_CATEGORIE = 2")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var topics []Topic
+	for rows.Next() {
+		var t Topic
+		if err := rows.Scan(&t.ID_TOPIC, &t.TITRE); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		topics = append(topics, t)
+	}
+
+	err = tmpl.Execute(w, topics)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
 func produitsHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("../front/produits.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	err = tmpl.Execute(w, nil)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
 
-/*func programHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("../front/programme.html")
+	rows, err := db.Query("SELECT topic.ID_TOPIC, topic.TITRE FROM topic JOIN definir ON topic.ID_TOPIC = definir.ID_TOPIC WHERE definir.ID_CATEGORIE = 3")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	err = tmpl.Execute(w, nil)
+	defer rows.Close()
+
+	var topics []Topic
+	for rows.Next() {
+		var t Topic
+		if err := rows.Scan(&t.ID_TOPIC, &t.TITRE); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		topics = append(topics, t)
+	}
+
+	err = tmpl.Execute(w, topics)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-}*/
+}
 
 func programHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("../front/programme.html")
