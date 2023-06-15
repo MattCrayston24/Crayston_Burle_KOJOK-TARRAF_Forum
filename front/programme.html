@@ -32,7 +32,15 @@
         </form>
     </header>
 
-    <div class="content"></div>
+    <div class="content">
+        {{range .}}
+        <div class="topic">
+            <h2>{{.TITRE}}</h2>
+            <!-- Ajoutez ici d'autres éléments pour afficher plus d'informations sur le topic -->
+        </div>
+        {{end}}
+    </div>
+
 
     <footer class="footer">
         <div class="footer-content">
