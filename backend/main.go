@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"strconv"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -64,11 +65,12 @@ func main() {
 	http.Handle("/assets/", http.StripPrefix("/assets", assets))
 
 	http.HandleFunc("/", indexHandler)
-	http.HandleFunc("/connexion", loginHandler)
 	http.HandleFunc("/programme", programHandler)
 	http.HandleFunc("/alimentation", alimentationHandler)
 	http.HandleFunc("/contact", contactHandler)
 	http.HandleFunc("/produits", produitsHandler)
+	http.HandleFunc("/connexion", loginHandler)
+	http.HandleFunc("/create_topic", createTopicHandler)
 
 	fmt.Println("(http://localhost:8080/) - Server is running on port 8080")
 
@@ -226,5 +228,74 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 				http.Redirect(w, r, "/", http.StatusSeeOther)
 			}
 		}
+	}
+}
+
+func createTopicHandler(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFiles("../front/create_topic.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	switch r.Method {
+	case "GET":
+		// Récupère les catégories de la base de données
+		rows, err := db.Query("SELECT * FROM categorie")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		var categories []Categorie
+		for rows.Next() {
+			var c Categorie
+			if err := rows.Scan(&c.ID_CATEGORIE, &c.TITRE); err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			categories = append(categories, c)
+		}
+
+		err = tmpl.Execute(w, categories)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	case "POST":
+		// Crée un nouveau topic
+		titre := r.FormValue("titre")
+		categorie, err := strconv.Atoi(r.FormValue("categorie"))
+		if err != nil {
+			http.Error(w, "Invalid category ID", http.StatusBadRequest)
+			return
+		}
+
+		// Ici, vous devrez remplacer "1" par l'ID de l'utilisateur connecté
+		_, err = db.Exec("INSERT INTO topic (TITRE, ID_UTILISATEUR) VALUES (?, 1)", titre)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Récupère l'ID du dernier topic créé
+		var idTopic int
+		err = db.QueryRow("SELECT LAST_INSERT_ID()").Scan(&idTopic)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Associe le topic à la catégorie choisie
+		_, err = db.Exec("INSERT INTO definir (ID_TOPIC, ID_CATEGORIE) VALUES (?, ?)", idTopic, categorie)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Redirige l'utilisateur vers la page d'accueil
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	default:
+		http.Error(w, "Méthode non autorisée", http.StatusMethodNotAllowed)
 	}
 }

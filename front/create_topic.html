@@ -68,12 +68,21 @@
     </header>
 
     <div class="content">
-        {{range .}}
-        <div class="topic">
-            <h2>{{.TITRE}}</h2>
-            <!-- Ajoutez ici d'autres éléments pour afficher plus d'informations sur le topic -->
-        </div>
-        {{end}}
+        <h2>Créer un nouveau Topic</h2>
+
+        <form action="/create_topic" method="post">
+            <label for="titre">Titre:</label><br>
+            <input type="text" id="titre" name="titre"><br>
+
+            <label for="categorie">Catégorie:</label><br>
+            <select name="categorie" id="categorie">
+                {{range .}}
+                <option value="{{.ID_CATEGORIE}}">{{.TITRE}}</option>
+                {{end}}
+            </select><br>
+
+            <input type="submit" value="Créer">
+        </form>
     </div>
 
     <footer class="footer">

@@ -22,14 +22,49 @@
                 <li><a href="/alimentation">Alimentation</a></li>
                 <li><a href="/produits">Produits</a></li>
                 <li><a href="/contact">Contact</a></li>
-                <li><a href="/connexion">Connexion</a></li>
-                <li><a href="/inscription">Inscription</a></li>
             </ul>
         </nav>
-        <form class="search-form">
-            <input type="text" placeholder="Rechercher">
-            <button type="submit">Rechercher</button>
-        </form>
+        <!-- Icône de profil et nom d'utilisateur -->
+        <div id="profile">
+            <p id="username"></p>
+            <img src="assets/img/profile_icon.png" id="profile-icon" onclick="openModal()">
+        </div>
+
+        <!-- Modale Connexion/Inscription -->
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+
+                <!-- Formulaire Connexion -->
+                <div class="form-container" id="login-form">
+                    <h1>Connexion</h1>
+                    <form method="post">
+                        <label for="email">Email :</label>
+                        <input type="email" id="email" name="email" required>
+                        <label for="password">Mot de passe :</label>
+                        <input type="password" id="password" name="password" required>
+                        <input type="submit" value="Se connecter">
+                    </form>
+                    <p>Vous n'avez pas de compte ? <a href="#" onclick="switchForm()">S'inscrire</a></p>
+                </div>
+
+                <!-- Formulaire Inscription -->
+                <div class="form-container" id="signup-form" style="display: none;">
+                    <h1>Inscription</h1>
+                    <form method="post">
+                        <label for="username">Nom d'utilisateur :</label>
+                        <input type="text" id="username" name="username" required>
+                        <label for="signup-email">Email :</label>
+                        <input type="email" id="signup-email" name="signup-email" required>
+                        <label for="signup-password">Mot de passe :</label>
+                        <input type="password" id="signup-password" name="signup-password" required>
+                        <input type="submit" value="S'inscrire">
+                    </form>
+                    <p>Vous avez déjà un compte ? <a href="#" onclick="switchForm()">Se connecter</a></p>
+                </div>
+            </div>
+        </div>
+
     </header>
 
     <div class="content"></div>
