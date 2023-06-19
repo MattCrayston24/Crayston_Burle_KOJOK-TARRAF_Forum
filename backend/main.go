@@ -33,6 +33,7 @@ type Utilisateur struct {
 	ADRESSE_MAIL    string
 	MOT_DE_PASSE    string
 	ID_ROLE         int
+	SESSION_TOKEN   sql.NullString
 }
 
 type Topic struct {
@@ -218,6 +219,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			} else {
 				http.Redirect(w, r, "/", http.StatusSeeOther)
+				fmt.Fprintln(w, "Inscription réussie")
 				return
 			}
 		}
@@ -225,8 +227,10 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		// Si les champs de connexion sont remplis, tenter de connecter l'utilisateur
 		if email != "" && password != "" {
 			var utilisateur Utilisateur
-			err := db.QueryRow("SELECT * FROM UTILISATEUR WHERE ADRESSE_MAIL = ? AND MOT_DE_PASSE = ?", email, password).Scan(&utilisateur.ID_UTILISATEUR, &utilisateur.NOM_UTILISATEUR, &utilisateur.ADRESSE_MAIL, &utilisateur.MOT_DE_PASSE, &utilisateur.ID_ROLE)
+
+			err := db.QueryRow("SELECT * FROM UTILISATEUR WHERE ADRESSE_MAIL = ? AND MOT_DE_PASSE = ?", email, password).Scan(&utilisateur.ID_UTILISATEUR, &utilisateur.NOM_UTILISATEUR, &utilisateur.ADRESSE_MAIL, &utilisateur.MOT_DE_PASSE, &utilisateur.ID_ROLE, &utilisateur.SESSION_TOKEN)
 			if err != nil {
+				fmt.Printf("Erreur SQL : %v\n", err)
 				http.Error(w, "Connexion échouée", http.StatusUnauthorized)
 				return
 			}
