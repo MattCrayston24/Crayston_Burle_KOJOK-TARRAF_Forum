@@ -1,11 +1,14 @@
 package main
 
 import (
+	"crypto/rand"
 	"database/sql"
+	"encoding/base64"
 	"fmt"
 	"html/template"
 	"net/http"
 	"strconv"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -202,33 +205,66 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 		email := r.FormValue("email")
 		password := r.FormValue("password") // Pensez à hacher ce mot de passe avant de le comparer à celui dans la base de données
-
-		var utilisateur Utilisateur
-		err := db.QueryRow("SELECT * FROM UTILISATEUR WHERE ADRESSE_MAIL = ? AND MOT_DE_PASSE = ?", email, password).Scan(&utilisateur.ID_UTILISATEUR, &utilisateur.NOM_UTILISATEUR, &utilisateur.ADRESSE_MAIL, &utilisateur.MOT_DE_PASSE, &utilisateur.ID_ROLE)
-		if err != nil {
-			fmt.Fprintln(w, "Connexion échouée")
-		}
-
-		if utilisateur.ADRESSE_MAIL != "" {
-			http.Redirect(w, r, "/", http.StatusSeeOther)
-		} else {
-			fmt.Fprintln(w, "Connexion échouée")
-		}
-
 		username := r.FormValue("username")
 		signupEmail := r.FormValue("signup-email")
 		signupPassword := r.FormValue("signup-password") // Vous devriez hacher ce mot de passe avant de le stocker
 		roleID := 3                                      // Selon votre exemple d'insertion, le rôle d'utilisateur normal a un ID_ROLE de 3
 
+		// Si les champs d'inscription sont remplis, tenter d'inscrire l'utilisateur
 		if username != "" && signupEmail != "" && signupPassword != "" {
 			_, err := db.Exec("INSERT INTO UTILISATEUR (NOM_UTILISATEUR, ADRESSE_MAIL, MOT_DE_PASSE, ID_ROLE) VALUES (?, ?, ?, ?)", username, signupEmail, signupPassword, roleID)
 			if err != nil {
 				fmt.Fprintln(w, "Inscription échouée")
+				return
 			} else {
 				http.Redirect(w, r, "/", http.StatusSeeOther)
+				return
+			}
+		}
+
+		// Si les champs de connexion sont remplis, tenter de connecter l'utilisateur
+		if email != "" && password != "" {
+			var utilisateur Utilisateur
+			err := db.QueryRow("SELECT * FROM UTILISATEUR WHERE ADRESSE_MAIL = ? AND MOT_DE_PASSE = ?", email, password).Scan(&utilisateur.ID_UTILISATEUR, &utilisateur.NOM_UTILISATEUR, &utilisateur.ADRESSE_MAIL, &utilisateur.MOT_DE_PASSE, &utilisateur.ID_ROLE)
+			if err != nil {
+				http.Error(w, "Connexion échouée", http.StatusUnauthorized)
+				return
+			}
+
+			if utilisateur.ADRESSE_MAIL != "" {
+				// Generate a new random session token
+				sessionToken := generateSessionToken()
+
+				// Set the token in the database
+				_, err = db.Exec("UPDATE UTILISATEUR SET SESSION_TOKEN = ? WHERE ADRESSE_MAIL = ?", sessionToken, email)
+				if err != nil {
+					http.Error(w, "Failed to update session token", http.StatusInternalServerError)
+					return
+				}
+
+				// Set the token as a cookie
+				http.SetCookie(w, &http.Cookie{
+					Name:     "session_token",
+					Value:    sessionToken,
+					Expires:  time.Now().Add(24 * time.Hour), // The cookie will expire in 24 hours
+					HttpOnly: true,
+					Secure:   true, // Use this if your site uses https
+				})
+
+				http.Redirect(w, r, "/", http.StatusSeeOther)
+				return
+			} else {
+				http.Error(w, "Connexion échouée", http.StatusUnauthorized)
+				return
 			}
 		}
 	}
+}
+
+func generateSessionToken() string {
+	b := make([]byte, 32)
+	rand.Read(b)
+	return base64.StdEncoding.EncodeToString(b)
 }
 
 func createTopicHandler(w http.ResponseWriter, r *http.Request) {
