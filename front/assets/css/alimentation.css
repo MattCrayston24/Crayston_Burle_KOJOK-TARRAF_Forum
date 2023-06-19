@@ -152,13 +152,15 @@ form {
 
 
 /* Style pour l'icône du profil et le nom d'utilisateur */
-#profile-link {
+#profile {
     display: flex;
     align-items: center;
 }
 
-#profile-link img {
+#profile img {
     cursor: pointer;
+    width: 100px;
+    height: 100px;
 }
 
 /* Style pour la modale */
