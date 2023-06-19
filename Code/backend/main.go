@@ -186,135 +186,6 @@ func alimentationHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-/*func produitsHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("../front/produits.html")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	rows, err := db.Query("SELECT topic.ID_TOPIC, topic.TITRE FROM topic JOIN definir ON topic.ID_TOPIC = definir.ID_TOPIC WHERE definir.ID_CATEGORIE = 3")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer rows.Close()
-
-	var topics []Topic
-	for rows.Next() {
-		var t Topic
-		if err := rows.Scan(&t.ID_TOPIC, &t.TITRE); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		topics = append(topics, t)
-	}
-
-	err = tmpl.Execute(w, topics)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
-
-func programHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("../front/programme.html")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	rows, err := db.Query("SELECT topic.ID_TOPIC, topic.TITRE FROM topic JOIN definir ON topic.ID_TOPIC = definir.ID_TOPIC WHERE definir.ID_CATEGORIE = 1")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer rows.Close()
-
-	var topics []Topic
-	for rows.Next() {
-		var t Topic
-		if err := rows.Scan(&t.ID_TOPIC, &t.TITRE); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		topics = append(topics, t)
-	}
-
-	err = tmpl.Execute(w, topics)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
-
-func createTopicHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("../front/create_topic.html")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	switch r.Method {
-	case "GET":
-		// Récupère les catégories de la base de données
-		rows, err := db.Query("SELECT * FROM categorie")
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		defer rows.Close()
-
-		var categories []Categorie
-		for rows.Next() {
-			var c Categorie
-			if err := rows.Scan(&c.ID_CATEGORIE, &c.TITRE); err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-			categories = append(categories, c)
-		}
-
-		err = tmpl.Execute(w, categories)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-	case "POST":
-		// Crée un nouveau topic
-		titre := r.FormValue("titre")
-		categorie, err := strconv.Atoi(r.FormValue("categorie"))
-		if err != nil {
-			http.Error(w, "Invalid category ID", http.StatusBadRequest)
-			return
-		}
-
-		// Ici, vous devrez remplacer "1" par l'ID de l'utilisateur connecté
-		_, err = db.Exec("INSERT INTO topic (TITRE, ID_UTILISATEUR) VALUES (?, 1)", titre)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		// Récupère l'ID du dernier topic créé
-		var idTopic int
-		err = db.QueryRow("SELECT LAST_INSERT_ID()").Scan(&idTopic)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		// Associe le topic à la catégorie choisie
-		_, err = db.Exec("INSERT INTO definir (ID_TOPIC, ID_CATEGORIE) VALUES (?, ?)", idTopic, categorie)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		// Redirige l'utilisateur vers la page d'accueil
-		http.Redirect(w, r, "/", http.StatusSeeOther)
-	default:
-		http.Error(w, "Méthode non autorisée", http.StatusMethodNotAllowed)
-	}
-}*/
-
 func produitsHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("../front/produits.html")
 	if err != nil {
@@ -577,6 +448,11 @@ func getUsernameFromSessionToken(token string) (string, error) {
 	var username string
 	err := db.QueryRow("SELECT NOM_UTILISATEUR FROM UTILISATEUR WHERE SESSION_TOKEN = ?", token).Scan(&username)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			// Pas d'erreur si aucune ligne correspondante n'est trouvée
+			return "", nil
+		}
+		// Pour toute autre erreur, la renvoyer
 		return "", err
 	}
 	return username, nil
