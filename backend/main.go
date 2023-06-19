@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"time"
 
+	"golang.org/x/crypto/bcrypt"
+
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -198,7 +200,7 @@ func programHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func loginHandler(w http.ResponseWriter, r *http.Request) {
+/*func loginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		http.ServeFile(w, r, "../front/connexion.html")
 	} else if r.Method == "POST" {
@@ -231,6 +233,83 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 			err := db.QueryRow("SELECT * FROM UTILISATEUR WHERE ADRESSE_MAIL = ? AND MOT_DE_PASSE = ?", email, password).Scan(&utilisateur.ID_UTILISATEUR, &utilisateur.NOM_UTILISATEUR, &utilisateur.ADRESSE_MAIL, &utilisateur.MOT_DE_PASSE, &utilisateur.ID_ROLE, &utilisateur.SESSION_TOKEN)
 			if err != nil {
 				fmt.Printf("Erreur SQL : %v\n", err)
+				http.Error(w, "Connexion échouée", http.StatusUnauthorized)
+				return
+			}
+
+			if utilisateur.ADRESSE_MAIL != "" {
+				// Generate a new random session token
+				sessionToken := generateSessionToken()
+
+				// Set the token in the database
+				_, err = db.Exec("UPDATE UTILISATEUR SET SESSION_TOKEN = ? WHERE ADRESSE_MAIL = ?", sessionToken, email)
+				if err != nil {
+					http.Error(w, "Failed to update session token", http.StatusInternalServerError)
+					return
+				}
+
+				// Set the token as a cookie
+				http.SetCookie(w, &http.Cookie{
+					Name:     "session_token",
+					Value:    sessionToken,
+					Expires:  time.Now().Add(24 * time.Hour), // The cookie will expire in 24 hours
+					HttpOnly: true,
+					Secure:   true, // Use this if your site uses https
+				})
+
+				http.Redirect(w, r, "/", http.StatusSeeOther)
+				return
+			} else {
+				http.Error(w, "Connexion échouée", http.StatusUnauthorized)
+				return
+			}
+		}
+	}
+}*/
+
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		http.ServeFile(w, r, "../front/connexion.html")
+	} else if r.Method == "POST" {
+		r.ParseForm()
+
+		email := r.FormValue("email")
+		password := r.FormValue("password")
+		username := r.FormValue("username")
+		signupEmail := r.FormValue("signup-email")
+		signupPassword := r.FormValue("signup-password")
+		roleID := 3
+
+		if username != "" && signupEmail != "" && signupPassword != "" {
+			hashedPassword, err := bcrypt.GenerateFromPassword([]byte(signupPassword), bcrypt.DefaultCost)
+			if err != nil {
+				fmt.Fprintln(w, "Failed to hash password")
+				return
+			}
+
+			_, err = db.Exec("INSERT INTO UTILISATEUR (NOM_UTILISATEUR, ADRESSE_MAIL, MOT_DE_PASSE, ID_ROLE) VALUES (?, ?, ?, ?)", username, signupEmail, string(hashedPassword), roleID)
+			if err != nil {
+				fmt.Fprintln(w, "Inscription échouée")
+				return
+			} else {
+				http.Redirect(w, r, "/", http.StatusSeeOther)
+				fmt.Fprintln(w, "Inscription réussie")
+				return
+			}
+		}
+
+		if email != "" && password != "" {
+			var utilisateur Utilisateur
+
+			err := db.QueryRow("SELECT * FROM UTILISATEUR WHERE ADRESSE_MAIL = ?", email).Scan(&utilisateur.ID_UTILISATEUR, &utilisateur.NOM_UTILISATEUR, &utilisateur.ADRESSE_MAIL, &utilisateur.MOT_DE_PASSE, &utilisateur.ID_ROLE, &utilisateur.SESSION_TOKEN)
+			if err != nil {
+				fmt.Printf("Erreur SQL : %v\n", err)
+				http.Error(w, "Connexion échouée", http.StatusUnauthorized)
+				return
+			}
+
+			err = bcrypt.CompareHashAndPassword([]byte(utilisateur.MOT_DE_PASSE), []byte(password))
+			if err != nil {
 				http.Error(w, "Connexion échouée", http.StatusUnauthorized)
 				return
 			}
