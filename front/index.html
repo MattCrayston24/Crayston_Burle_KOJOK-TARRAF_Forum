@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="assets/css/index.css">
-    <title>GOT World</title>
+    <title>Forum</title>
 </head>
 
 <body>
@@ -22,8 +22,12 @@
                 <li><a href="#">Alimentation</a></li>
                 <li><a href="#">Produits</a></li>
                 <li><a href="#">Contact</a></li>
-                <li><a href="/connexion">Connexion</a></li> 
-                <li><a href="/connexion">Inscription</a></li> 
+                {{if .NomUtilisateur}}
+                    <li><a href="#">{{.NomUtilisateur}}</a></li> 
+                {{else}}
+                    <li><a href="/connexion">Connexion</a></li> 
+                    <li><a href="/connexion">Inscription</a></li> 
+                {{end}}
             </ul>
         </nav>
         <form class="search-form">
@@ -32,14 +36,12 @@
         </form>
     </header>
     
-
     <footer class="footer">
         <div class="footer-content">
             <p>&copy; 2023 Musculation Website. Tous droits réservés.</p>
             <p>Designed by <a href="https://www.example.com" target="_blank">Your Name</a></p>
         </div>
     </footer>
-
 
 </body>
 
